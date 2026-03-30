@@ -34,24 +34,26 @@ jobs:
          echo "VERSION=$VERSION" >> $GITHUB_ENV
          echo "Using version $VERSION"
          
-     - name: Compare current version
+     - name: Compare current version (nuspec)
        run: |
-         CURRENT_VERSION=$(jq -r '.version' package.json)
-         
-          if [ -z "$CURRENT_VERSION" ] || [ "$CURRENT_VERSION" = "null" ]; then
-            echo "Could not read the current version from package.json"
-            exit 1
-          fi
-
-          echo "Current version: $CURRENT_VERSION"
-          echo "Incoming version: $VERSION"
-
-          if [ "$CURRENT_VERSION" = "$VERSION" ]; then
-            echo "The version is already up to date. No changes needed."
-            exit 0
-          fi
-
-          echo "New version detected. Continuing with release process."
+        if [ ! -f "FroalaEditor.nuspec" ]; then
+          echo "FroalaEditor.nuspec not found"
+          exit 1
+        fi
+        CURRENT_VERSION=$(grep -oP '(?<=<version>)[^<]+' FroalaEditor.nuspec)
+        if [ -z "$CURRENT_VERSION" ]; then
+          echo "Could not read version from FroalaEditor.nuspec"
+          exit 1
+        fi
+        echo "Current version: $CURRENT_VERSION"
+        echo "Incoming version: $VERSION"
+        if [ "$CURRENT_VERSION" = "$VERSION" ]; then
+          echo "Version already up to date. Skipping release."
+          echo "SKIP_RELEASE=true" >> $GITHUB_ENV
+          exit 0
+        fi
+        echo "New version detected. Continuing."
+        echo "SKIP_RELEASE=false" >> $GITHUB_ENV
          
      - name: Prepare release branch
        run: |
