@@ -23,7 +23,6 @@ jobs:
          
      - name: Initialize and update submodule
        run: |
-         git submodule sync
          git submodule update --init --recursive
          
      - name: Load version
