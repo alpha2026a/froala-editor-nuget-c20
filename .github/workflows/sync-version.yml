@@ -19,9 +19,8 @@ jobs:
          
      - name: Initialize and update submodule
        run: |
-         cd src/wysiwyg-editor
-         git submodule init
-         git submodule update
+         git submodule sync
+         git submodule update --init --recursive
          
      - name: Load version
        run: |
